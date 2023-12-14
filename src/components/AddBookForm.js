@@ -1,16 +1,40 @@
 import React, { useState } from 'react';
+import AddedBooks from './AddedBooks';
 
-const AddBookForm = ({ onAddBook }) => {
+const AddBookForm = () => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
+  const [books, setBooks] = useState([]);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const handleAddBook = () => {
-    const newBook = { title, author };
-    onAddBook(newBook);
+    // Валидация введенных данных
+    if (!title.trim() || !author.trim()) {
+      setError('Title and author are required fields.');
+      return;
+    }
 
-    // Reset form fields
+    // Создание новой книги
+    const newBook = { id: Date.now(), title, author };
+
+    // Обновление списка книг
+    setBooks((prevBooks) => [...prevBooks, newBook]);
+
+    // Ресет ошибок
+    setError(null);
+
+    // Очистка формы
     setTitle('');
     setAuthor('');
+
+    // Вывод сообщения об успешном добавлении
+    setSuccessMessage('Book added successfully!');
+  };
+
+  const handleDeleteBook = (bookId) => {
+    // Удаление книги из списка
+    setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId));
   };
 
   return (
@@ -24,6 +48,21 @@ const AddBookForm = ({ onAddBook }) => {
         <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} />
       </label>
       <button onClick={handleAddBook}>Add Book</button>
+
+      {error && (
+        <div style={{ color: 'red' }}>
+          {error}
+          <button onClick={() => setError(null)}>Close</button>
+        </div>
+      )}
+      {successMessage && (
+        <div style={{ color: 'green' }}>
+          {successMessage}
+          <button onClick={() => setSuccessMessage(null)}>Close</button>
+        </div>
+      )}
+
+      <AddedBooks books={books} onDeleteBook={handleDeleteBook} />
     </div>
   );
 };

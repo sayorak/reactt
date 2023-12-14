@@ -8,8 +8,8 @@ const Error = ({ message }) => (
   </div>
 );
 
-const BookListItem = ({ book, onClick, onDelete, isSelected }) => (
-  <li className={isSelected ? 'selected' : ''}>
+const BookListItem = ({ book, onClick, onDelete }) => (
+  <li>
     <img
       src={book.volumeInfo.imageLinks.thumbnail}
       alt={book.volumeInfo.title}
@@ -66,10 +66,16 @@ const BooksList = () => {
     fetchBooks();
   }, [searchTerm]);
 
+  const authorsList = books
+    .map((book) => book.volumeInfo.authors)
+    .filter((authors) => authors !== undefined)
+    .reduce((accumulator, authors) => accumulator.concat(authors), []);
+
   return (
     <div className="books-list">
       {error && <Error message={error} />}
       <h2>Books List</h2>
+      <p>All Authors: {authorsList.join(', ')}</p>
       <input
         type="text"
         placeholder="Search by title..."
@@ -84,7 +90,6 @@ const BooksList = () => {
               book={book}
               onClick={handleBookClick}
               onDelete={handleDeleteBook}
-              isSelected={selectedBook && selectedBook.id === book.id}
             />
           ))}
         </ul>
